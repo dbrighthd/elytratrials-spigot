@@ -1,5 +1,11 @@
 package dbrighthd.elytracontrails.networking;
 
+/**
+ * Per-player trail settings that can be synced over the network.
+ *
+ * Keep this record small and stable; fields that should not hard-fail when missing in older packets
+ * should be encoded with optional codecs.
+ */
 public record PlayerConfig(
         boolean enableTrail,
         boolean enableRandomWidth,
@@ -12,5 +18,10 @@ public record PlayerConfig(
         double endRampDistance,
         int color,
         double randomWidthVariation,
-        String prideTrail
-) {}
+        String prideTrail,
+        boolean fadeStart,
+        double fadeStartDistance,
+        boolean fadeEnd,
+        int trailType
+) {
+}

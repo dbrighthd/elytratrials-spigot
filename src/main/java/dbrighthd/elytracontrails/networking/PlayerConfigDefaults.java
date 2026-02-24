@@ -16,7 +16,11 @@ public final class PlayerConfigDefaults {
                 10.0,
                 0xFFFFFFFF,
                 0.0,
-                ""
+                "",
+                false,
+                0,
+                false,
+                1
         );
     }
 }
