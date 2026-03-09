@@ -10,6 +10,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static dbrighthd.elytracontrails.networking.ElytraTrailConstants.*;
 
@@ -33,13 +36,21 @@ public class ModPayloadListener implements PluginMessageListener {
                 case PLAYER_CONFIG -> handlePlayerConfigC2S(sender, bytes);
                 case GET_CONFIGS_REQUEST -> handleGetAllConfigs(sender);
                 case REMOVE_CONFIG -> handleRemoveFromStoreC2S(sender);
+                case PLAYER_CONFIG_DEPRECATED -> handleDeprecatedPlayerConfig(sender);
                 default -> { }
             }
         } catch (Throwable t) {
             plugin.getLogger().warning("Failed handling " + channel + " from " + sender.getName() + ": " + t);
         }
     }
-
+    private final Set<UUID> warnedDeprecatedConfig = ConcurrentHashMap.newKeySet();
+    private void handleDeprecatedPlayerConfig(Player sender) {
+        if (!warnedDeprecatedConfig.add(sender.getUniqueId())) return;
+        sender.sendMessage("§cYou are using an outdated version of Elytra Contrails. To sync with this server, you must update to Elytra Contrails 1.4.0+");
+    }
+    public void clearDeprecatedWarning(Player player) {
+        warnedDeprecatedConfig.remove(player.getUniqueId());
+    }
     private void handleTwirlStateC2S(Player sender, byte[] bytes) throws IOException {
         int twirlState = VarInts.readVarInt(new ByteArrayInputStream(bytes));
         int entityId = sender.getEntityId();

@@ -14,7 +14,10 @@ public final class ElytraTrailConstants {
      */
     public static final String GET_CONFIGS_REQUEST = MOD_ID + ":get_all_configs";
 
-    public static final String PLAYER_CONFIG = MOD_ID + ":player_config";
+    public static final String PLAYER_CONFIG = MOD_ID + ":player_config_tag";
+
+    public static final String PLAYER_CONFIG_DEPRECATED = MOD_ID + ":player_config";
+
 
     public static final String REMOVE_CONFIG = MOD_ID + ":remove_from_store";
 

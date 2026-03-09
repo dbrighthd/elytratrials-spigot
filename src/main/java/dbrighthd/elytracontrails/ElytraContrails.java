@@ -28,6 +28,7 @@ public class ElytraContrails extends JavaPlugin implements Listener {
         messenger.registerIncomingPluginChannel(this, PLAYER_CONFIG, listener);
         messenger.registerIncomingPluginChannel(this, GET_CONFIGS_REQUEST, listener);
         messenger.registerIncomingPluginChannel(this, REMOVE_CONFIG, listener);
+        messenger.registerIncomingPluginChannel(this, PLAYER_CONFIG_DEPRECATED, listener);
 
         // Outgoing channels (S2C)
         messenger.registerOutgoingPluginChannel(this, TWIRL_STATE);
@@ -46,6 +47,7 @@ public class ElytraContrails extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
+        listener.clearDeprecatedWarning(e.getPlayer());
         try {
             listener.removeAndBroadcast(e.getPlayer());
         } catch (IOException ex) {
