@@ -1,4 +1,15 @@
 name: elytracontrails
-version: '1.4.0'
+version: '1.6.0'
 main: dbrighthd.elytracontrails.ElytraContrails
 api-version: '1.21'
+
+commands:
+  elytratrailsconfig:
+    description: Configure Elytra Contrails
+    usage: /elytratrailsconfig <enabletrails|enabletwirls> <true|false>
+    permission: elytratrails.admin
+
+permissions:
+  elytratrails.admin:
+    description: Allows configuration of Elytra Contrails
+    default: op

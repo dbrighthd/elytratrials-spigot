@@ -1,5 +1,8 @@
 package dbrighthd.elytracontrails.networking;
 
+import dbrighthd.elytracontrails.ElytraContrails;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -37,6 +40,7 @@ public class ModPayloadListener implements PluginMessageListener {
                 case GET_CONFIGS_REQUEST -> handleGetAllConfigs(sender);
                 case REMOVE_CONFIG -> handleRemoveFromStoreC2S(sender);
                 case PLAYER_CONFIG_DEPRECATED -> handleDeprecatedPlayerConfig(sender);
+                case TWIRL_DATA -> handleTwirlDataC2S(sender,bytes);
                 default -> { }
             }
         } catch (Throwable t) {
@@ -52,6 +56,10 @@ public class ModPayloadListener implements PluginMessageListener {
         warnedDeprecatedConfig.remove(player.getUniqueId());
     }
     private void handleTwirlStateC2S(Player sender, byte[] bytes) throws IOException {
+        if(!ElytraContrails.twirlsEnabled)
+        {
+            return;
+        }
         int twirlState = VarInts.readVarInt(new ByteArrayInputStream(bytes));
         int entityId = sender.getEntityId();
 
@@ -63,6 +71,20 @@ public class ModPayloadListener implements PluginMessageListener {
 
         broadcastToListeningPlayers(TWIRL_STATE, out.toByteArray());
     }
+
+    private void handleTwirlDataC2S(Player sender, byte[] bytes) throws IOException {
+        if(!ElytraContrails.twirlsEnabled)
+        {
+            return;
+        }
+        int entityId = sender.getEntityId();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        VarInts.writeVarInt(out, entityId);
+        out.write(bytes);
+
+        broadcastToListeningPlayers(TWIRL_DATA, out.toByteArray());
+    }
+
 
     private void handlePlayerConfigC2S(Player sender, byte[] rawConfigBytes) throws IOException {
         int entityId = sender.getEntityId();
@@ -77,6 +99,15 @@ public class ModPayloadListener implements PluginMessageListener {
     }
 
     private void handleGetAllConfigs(Player requester) throws IOException {
+        sendAllConfigs(requester);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.write(ElytraContrails.trailsEnabled ? 1 : 0);
+        sendToPlayerIfListening(requester, TRAIL_STATUS, out.toByteArray());
+
+    }
+
+    private void sendAllConfigs(Player requester) throws IOException {
         for (Map.Entry<Integer, PlayerConfigStore.Entry> playerConfigEntry : store.snapshot().entrySet()) {
             int entityId = playerConfigEntry.getKey();
             byte[] rawConfigBytes = playerConfigEntry.getValue().rawConfigPayload();
@@ -87,6 +118,12 @@ public class ModPayloadListener implements PluginMessageListener {
             out.write(rawConfigBytes);
 
             sendToPlayerIfListening(requester, PLAYER_CONFIG, out.toByteArray());
+        }
+    }
+
+    public void sendAllConfigsToAllPlayers() throws IOException {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            sendAllConfigs(player);
         }
     }
 
@@ -104,7 +141,7 @@ public class ModPayloadListener implements PluginMessageListener {
         broadcastToListeningPlayers(REMOVE_CONFIG, out.toByteArray());
     }
 
-    private void broadcastToListeningPlayers(String channel, byte[] payload) {
+    public void broadcastToListeningPlayers(String channel, byte[] payload) {
         for (Player player : Bukkit.getOnlinePlayers()) {
             sendToPlayerIfListening(player, channel, payload);
         }

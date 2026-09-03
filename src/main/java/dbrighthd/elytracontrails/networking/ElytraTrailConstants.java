@@ -23,6 +23,11 @@ public final class ElytraTrailConstants {
 
     public static final String TWIRL_STATE = MOD_ID + ":twirl_state";
 
+    public static final String TWIRL_DATA = MOD_ID + ":twirl_data";
+
+    public static final String TRAIL_STATUS = MOD_ID + ":trails_enabled";
+
+
     private ElytraTrailConstants() {
     }
 }
